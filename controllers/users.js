@@ -1,15 +1,21 @@
 const User = require("../models/user");
+const  { BAD_REQUEST_ERROR,
+  NOT_FOUND_ERROR,
+  SUCCESS,
+  CREATED,
+  INTERNAL_SERVER_ERROR} = require("../utils/errors");
+
 
 // Get /users
 const getUsers = (req, res) => {
   console.log("Fetching all users");
   User.find({})
     .then((users) => {
-      res.status(200).send(users);
+      res.status(SUCCESS).send(users);
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).send({ message: "Internal Server Error" });
+      res.status(INTERNAL_SERVER_ERROR).send({ message: "Internal Server Error" });
     });
 };
 
@@ -18,14 +24,14 @@ const createUser = (req, res) => {
   console.log(name, avatar);
   User.create({ name, avatar })
     .then((user) => {
-      res.status(201).send(user);
+      res.status(CREATED).send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: "Invalid user data" });
+        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
       } else {
-        res.status(500).send({ message: "Internal Server Error" });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
       }
     });
 };
@@ -35,16 +41,16 @@ const getUserById = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User not found" });
+        return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
       }
-      res.status(200).send(user);
+      res.status(SUCCESS).send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid user ID" });
+        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
       } else {
-        res.status(500).send({ message: "Internal Server Error" });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
       }
     });
 };
