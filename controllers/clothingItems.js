@@ -10,21 +10,21 @@ const {
 
 // Get /clothing-items
 const getClothingItems = (req, res) => {
-  console.log("Fetching all clothing items");
   ClothingItem.find({})
     .then((items) => {
       res.status(SUCCESS).send(items);
     })
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
 // Post /clothing-items
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl, owner } = req.body;
-  console.log(name, weather, imageUrl, owner, req.user._id);
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       res.status(CREATED).send(item);
@@ -34,7 +34,9 @@ const createClothingItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server." });
       }
     });
 };
@@ -63,7 +65,9 @@ const deleteClothingItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server." });
       }
     });
 };
@@ -95,7 +99,9 @@ const likeClothingItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(NOT_FOUND_ERROR).send({ message: err.message });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res
+          .status(BAD_REQUEST_ERROR)
+          .send({ message: "An error has occurred on the server." });
       }
     });
 };
@@ -125,9 +131,11 @@ const unlikeClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
+        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server." });
       }
     });
 };
