@@ -3,29 +3,28 @@ const ClothingItem = require("../models/clothingItem");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
-  SUCCESS,
   INTERNAL_SERVER_ERROR,
-  CREATED,
 } = require("../utils/errors");
+const { SUCCESS, CREATED } = require("../utils/successStatus");
 
 // Get /clothing-items
-const getClothingItems = (req, res) => {
+const getClothingItems = (req, res) =>
   ClothingItem.find({})
     .then((items) => {
       res.status(SUCCESS).send(items);
     })
     .catch((err) => {
       console.error(err);
-      res
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server." });
     });
-};
 
 // Post /clothing-items
 const createClothingItem = (req, res) => {
-  const { name, weather, imageUrl, owner } = req.body;
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
+  const { name, weather, imageUrl } = req.body;
+
+  return ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       res.status(CREATED).send(item);
     })
@@ -33,15 +32,14 @@ const createClothingItem = (req, res) => {
       console.error(err);
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
-//delete /clothing-items/:itemId
+// delete /clothing-items/:itemId
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -49,14 +47,14 @@ const deleteClothingItem = (req, res) => {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findByIdAndDelete(itemId)
     .then((item) => {
       if (!item) {
         return res
           .status(NOT_FOUND_ERROR)
           .send({ message: `Clothing item with id ${itemId} not found.` });
       }
-      res.status(SUCCESS).send({
+      return res.status(SUCCESS).send({
         message: `Clothing item '${item.name}' deleted successfully.`,
       });
     })
@@ -64,11 +62,10 @@ const deleteClothingItem = (req, res) => {
       console.error(err);
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -80,7 +77,7 @@ const likeClothingItem = (req, res) => {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } }, // addToSet prevents duplicates
     { new: true }
@@ -92,17 +89,16 @@ const likeClothingItem = (req, res) => {
           .status(NOT_FOUND_ERROR)
           .send({ message: "Clothing item not found" });
       }
-      res.status(SUCCESS).send(item);
+      return res.status(SUCCESS).send(item);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
         return res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      } else {
-        res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(BAD_REQUEST_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -114,7 +110,7 @@ const unlikeClothingItem = (req, res) => {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
@@ -126,17 +122,16 @@ const unlikeClothingItem = (req, res) => {
           .status(NOT_FOUND_ERROR)
           .send({ message: "Clothing item not found" });
       }
-      res.status(SUCCESS).send(item);
+      return res.status(SUCCESS).send(item);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
