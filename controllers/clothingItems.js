@@ -4,6 +4,7 @@ const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
+  AUTHENTICATION_ERROR,
 } = require("../utils/errors");
 const { SUCCESS, CREATED } = require("../utils/successStatus");
 
@@ -23,8 +24,9 @@ const getClothingItems = (req, res) =>
 // Post /clothing-items
 const createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
+  const owner = req.user._id;
 
-  return ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
+  return ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => {
       res.status(CREATED).send(item);
     })
@@ -39,7 +41,7 @@ const createClothingItem = (req, res) => {
     });
 };
 
-// delete /clothing-items/:itemId
+// DELETE /clothing-items/:itemId
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -47,25 +49,49 @@ const deleteClothingItem = (req, res) => {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
 
-  return ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findById(itemId)
+    .orFail(() => {
+      const error = new Error("Card ID not found");
+      error.statusCode = NOT_FOUND_ERROR;
+      throw error;
+    })
     .then((item) => {
-      if (!item) {
-        return res
-          .status(NOT_FOUND_ERROR)
-          .send({ message: `Clothing item with id ${itemId} not found.` });
+      // Check ownership
+      if (!item.owner.equals(req.user._id)) {
+        return res.status(AUTHENTICATION_ERROR).send({ message: "Forbidden" });
       }
-      return res.status(SUCCESS).send({
-        message: `Clothing item '${item.name}' deleted successfully.`,
-      });
+
+      // If owner matches, delete
+      return item
+        .deleteOne({ _id: itemId })
+        .then(() =>
+          res.status(SUCCESS).send({
+            message: `Item '${item.name}' deleted successfully.`,
+          })
+        )
+        .catch((err) => {
+          console.error(err);
+          res
+            .status(INTERNAL_SERVER_ERROR)
+            .send({ message: "An error has occurred on the server" });
+        });
     })
     .catch((err) => {
       console.error(err);
+
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .send({ message: "Invalid item ID" });
       }
+
+      if (err.statusCode === NOT_FOUND_ERROR) {
+        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
+      }
+
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server." });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -78,7 +104,7 @@ const likeClothingItem = (req, res) => {
   }
 
   return ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
+    itemId,
     { $addToSet: { likes: req.user._id } }, // addToSet prevents duplicates
     { new: true }
   )
@@ -121,6 +147,11 @@ const unlikeClothingItem = (req, res) => {
         return res
           .status(NOT_FOUND_ERROR)
           .send({ message: "Clothing item not found" });
+      }
+      if (item.owner.toString() !== req.user._id) {
+        return res
+          .status(AUTHENTICATION_ERROR)
+          .send({ message: "Forbidden: not your item" });
       }
       return res.status(SUCCESS).send(item);
     })

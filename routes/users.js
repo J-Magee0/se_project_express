@@ -1,10 +1,15 @@
 const router = require("express").Router();
-const { getUsers, createUser, getUserById } = require("../controllers/users");
+const {
+  getUsers,
+  getCurrentUser,
+  updateUserProfile,
+} = require("../controllers/users");
+const auth = require("../middlewares/auth");
 
-router.get("/", getUsers);
+// Routes for users
 
-router.get("/:userId", getUserById);
-
-router.post("/", createUser);
+router.get("/", auth, getUsers);
+router.get("/me", auth, getCurrentUser);
+router.patch("/me", auth, updateUserProfile);
 
 module.exports = router;
