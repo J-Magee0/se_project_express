@@ -146,7 +146,6 @@ const updateUserProfile = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   createUser,
   getCurrentUser,
   login,
