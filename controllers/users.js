@@ -12,19 +12,6 @@ const {
 } = require("../utils/errors");
 const { SUCCESS, CREATED } = require("../utils/successStatus");
 
-// Get /users
-const getUsers = (req, res) =>
-  User.find({})
-    .then((users) => {
-      res.status(SUCCESS).send(users);
-    })
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Internal Server Error" });
-    });
-
 // Create new user
 const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
@@ -50,6 +37,11 @@ const createUser = async (req, res) => {
 
     return res.status(CREATED).send(userWithoutPassword);
   } catch (err) {
+    if (err.code === 11000) {
+      return res
+        .status(CONFLICT_ERROR)
+        .send({ message: "User with this email already exists" });
+    }
     console.error(err);
     if (err.name === "ValidationError") {
       return res.status(BAD_REQUEST_ERROR).send({ message: err.message });

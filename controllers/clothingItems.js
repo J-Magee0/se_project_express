@@ -120,10 +120,10 @@ const likeClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: err.message });
+        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
       }
       return res
-        .status(BAD_REQUEST_ERROR)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server." });
     });
 };
@@ -147,11 +147,6 @@ const unlikeClothingItem = (req, res) => {
         return res
           .status(NOT_FOUND_ERROR)
           .send({ message: "Clothing item not found" });
-      }
-      if (item.owner.toString() !== req.user._id) {
-        return res
-          .status(AUTHENTICATION_ERROR)
-          .send({ message: "Forbidden: not your item" });
       }
       return res.status(SUCCESS).send(item);
     })
