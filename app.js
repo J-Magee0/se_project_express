@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/err-handler");
 
@@ -14,6 +15,11 @@ app.use(cors());
 
 // Main router for all routes
 app.use(mainRouter);
+
+// celebrate error handler
+app.use(errors());
+
+// our centralized handler
 app.use(errorHandler);
 
 // Connect to MongoDB
