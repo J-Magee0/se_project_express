@@ -9,25 +9,25 @@ const {
   INTERNAL_SERVER_ERROR,
   CONFLICT_ERROR,
   AUTHORIZATION_ERROR,
+  BadRequestError,
+  UnauthorizedError,
+  NotFoundError,
+  ConflictError,
 } = require("../utils/errors");
 const { SUCCESS, CREATED } = require("../utils/successStatus");
 
 // Create new user
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(BAD_REQUEST_ERROR)
-      .send({ message: "Email and password are required" });
+    return next(new BadRequestError("Email and password are required"));
   }
 
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(CONFLICT_ERROR)
-        .send({ message: "User already exists" });
+      return next(new ConflictError("User already exists"));
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -38,22 +38,17 @@ const createUser = async (req, res) => {
     return res.status(CREATED).send(userWithoutPassword);
   } catch (err) {
     if (err.code === 11000) {
-      return res
-        .status(CONFLICT_ERROR)
-        .send({ message: "User with this email already exists" });
+      return next(new ConflictError("User with this email already exists"));
     }
-    console.error(err);
     if (err.name === "ValidationError") {
-      return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
+      return next(new BadRequestError(err.message));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .send({ message: "An error occurred on the server" });
+    return next(err);
   }
 };
 
 // Get user by ID
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => {
@@ -61,31 +56,24 @@ const getCurrentUser = (req, res) => {
       res.status(SUCCESS).send(userWithoutPassword);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+        return next(new NotFoundError("User not found"));
       }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Invalid user id" });
+        return next(new BadRequestError("Invalid user id"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
+      return next(err);
     });
 };
 
 // Login Controller
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     //  Check that both email and password are provided
     if (!email || !password) {
-      return res
-        .status(BAD_REQUEST_ERROR)
-        .send({ message: "Email and password are required." });
+      return next(new BadRequestError("Email and password are required."));
     }
 
     //  Find user and validate credentials
@@ -99,21 +87,16 @@ const login = async (req, res) => {
   } catch (err) {
     //  Handle known authentication errors
     if (err.message === "Invalid email or password") {
-      return res
-        .status(AUTHORIZATION_ERROR)
-        .send({ message: "Invalid email or password." });
+      return next(new UnauthorizedError("Invalid email or password."));
     }
 
     //  Log unexpected errors and respond
-    console.error("Login error:", err);
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .send({ message: "An unexpected server error occurred." });
+    return next(err);
   }
 };
 
 // update name and avatar
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -127,21 +110,16 @@ const updateUserProfile = (req, res) => {
       res.status(SUCCESS).send(userWithoutPassword);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST_ERROR).send({ message: err.message });
+        return next(new BadRequestError(err.message));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+        return next(new NotFoundError("User not found"));
       }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Invalid user id" });
+        return next(new BadRequestError("Invalid user id"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Something went wrong" });
+      return next(err);
     });
 };
 
