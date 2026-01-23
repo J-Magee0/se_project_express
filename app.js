@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/err-handler");
+const { requestLogger, errorLogger } = require("./middlewares/Logger");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -13,14 +14,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+app.use(requestLogger);
 // Main router for all routes
 app.use(mainRouter);
 
-// celebrate error handler
-app.use(errors());
+app.use(errorLogger); //enabling error Logger
 
-// our centralized handler
-app.use(errorHandler);
+// celebrate error handler
+app.use(errors()); //celebrate error handler
+app.use(errorHandler); // centralied error handlers
 
 // Connect to MongoDB
 mongoose
