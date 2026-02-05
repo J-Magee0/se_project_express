@@ -1,9 +1,4 @@
-const BAD_REQUEST_ERROR = 400;
-const AUTHENTICATION_ERROR = 403;
-const NOT_FOUND_ERROR = 404;
-const INTERNAL_SERVER_ERROR = 500;
-const CONFLICT_ERROR = 409;
-const AUTHORIZATION_ERROR = 401;
+/* eslint-disable max-classes-per-file */
 
 class BadRequestError extends Error {
   constructor(message) {
@@ -46,12 +41,6 @@ class ConflictError extends Error {
 }
 
 module.exports = {
-  BAD_REQUEST_ERROR,
-  NOT_FOUND_ERROR,
-  INTERNAL_SERVER_ERROR,
-  AUTHENTICATION_ERROR,
-  CONFLICT_ERROR,
-  AUTHORIZATION_ERROR,
   BadRequestError,
   UnauthorizedError,
   ForbiddenError,

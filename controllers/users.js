@@ -4,11 +4,6 @@ const User = require("../models/user");
 
 const { JWT_SECRET } = require("../utils/config");
 const {
-  BAD_REQUEST_ERROR,
-  NOT_FOUND_ERROR,
-  INTERNAL_SERVER_ERROR,
-  CONFLICT_ERROR,
-  AUTHORIZATION_ERROR,
   BadRequestError,
   UnauthorizedError,
   NotFoundError,
@@ -32,8 +27,8 @@ const createUser = async (req, res, next) => {
 
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ name, avatar, email, password: hash });
-    const { password: hashedPassword, ...userWithoutPassword } =
-      user.toObject();
+    const userWithoutPassword = user.toObject();
+    delete userWithoutPassword.password;
 
     return res.status(CREATED).send(userWithoutPassword);
   } catch (err) {
@@ -47,12 +42,13 @@ const createUser = async (req, res, next) => {
   }
 };
 
-// Get user by ID
+// Get Current User
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => {
-      const { password, ...userWithoutPassword } = user.toObject();
+      const userWithoutPassword = user.toObject();
+      delete userWithoutPassword.password;
       res.status(SUCCESS).send(userWithoutPassword);
     })
     .catch((err) => {
@@ -106,7 +102,8 @@ const updateUserProfile = (req, res, next) => {
   )
     .orFail()
     .then((user) => {
-      const { password, ...userWithoutPassword } = user.toObject();
+      const userWithoutPassword = user.toObject();
+      delete userWithoutPassword.password;
       res.status(SUCCESS).send(userWithoutPassword);
     })
     .catch((err) => {

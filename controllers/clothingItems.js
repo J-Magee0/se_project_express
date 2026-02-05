@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
 const {
-  BAD_REQUEST_ERROR,
-  NOT_FOUND_ERROR,
-  INTERNAL_SERVER_ERROR,
-  AUTHENTICATION_ERROR,
   BadRequestError,
   ForbiddenError,
   NotFoundError,
