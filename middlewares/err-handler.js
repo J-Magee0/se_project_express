@@ -1,15 +1,8 @@
-const { InternalServerError} = require("../utils/errors");
+module.exports = (err, req, res, next) => {
+  const { statusCode = 500, message } = err;
 
-const errorHandler = (err, req, res, next) => {
-  console.error(err);
-
-  // If the error has a statusCode, use it; otherwise, use 500
-  const statusCode = err.statusCode || InternalServerError;
-
-  // Send response with the appropriate status code and message
   res.status(statusCode).send({
-    message: err.message || "An error has occurred on the server.",
+    message:
+      statusCode === 500 ? "An error has occurred on the server" : message,
   });
 };
-
-module.exports = errorHandler;
