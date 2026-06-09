@@ -29,7 +29,7 @@ app.use(mainRouter);
 // enabling error Logger
 app.use(errorLogger);
 
-// celebrate error handler
+// error handlers
 app.use(errors()); // celebrate error handler
 app.use(errorHandler); // centralied error handlers
 
@@ -42,6 +42,8 @@ mongoose
   .catch(console.error);
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+  });
+}
