@@ -28,11 +28,8 @@ app.use((req, res, next) => {
 // Main router for all routes
 app.use(mainRouter);
 
-// enabling error Logger
-app.use(errorLogger);
-
-// error handlers
 app.use(errors()); // celebrate error handler
+app.use(errorLogger); //enabling error logger
 app.use(errorHandler); // centralied error handlers
 
 // Connect to MongoDB
