@@ -25,6 +25,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// app.get('/crash-test', () => {
+//   setTimeout(() => {
+//     throw new Error('Server will crash now');
+//   }, 0);
+// });
+
 // Main router for all routes
 app.use(mainRouter);
 
