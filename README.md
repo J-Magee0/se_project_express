@@ -24,4 +24,13 @@ npm run dev # Launch the server with hot reload
 
 ## Project Pitch Video
 
-Check out [this video](https://drive.google.com/file/d/1Hce5XlwpEPRpthhVmYI5N15GZ3OJr8ab/view?usp=sharing), where I describe myproject and some challenges I faced while building it.
+[Project Pitch Video 1](https://drive.google.com/file/d/1Hce5XlwpEPRpthhVmYI5N15GZ3OJr8ab/view?usp=sharing)
+[Project Pitch Video 2-sprint 15](https://drive.google.com/file/d/1Qr9v52snRKZ0uqJTQEjTMM-HXbWyJEKY/view?usp=sharing)
+
+## Frontend Github Repo
+
+[Github link to frontend code](https://github.com/J-Magee0/se_project_react)
+
+## Link to Website
+
+[WTWR website link](https://wuttowear.privatedns.org/)
