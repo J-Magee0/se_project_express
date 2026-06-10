@@ -4,7 +4,7 @@ const errorHandler = (err, req, res, next) => {
   console.error(err);
 
   // If the error has a statusCode, use it; otherwise, use 500
-  const statusCode = err.statusCode || InternalServerError.statusCode || 500;
+  const statusCode = err.statusCode || 500;
 
   // Send response with the appropriate status code and message
   res.status(statusCode).send({
