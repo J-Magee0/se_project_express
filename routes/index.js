@@ -2,7 +2,7 @@ const router = require("express").Router();
 const userRouter = require("./users");
 const clothingItemsRouter = require("./clothingItems");
 const { createUser, login } = require("../controllers/users");
-const NotFoundError = require("../utils/errors");
+const NotFoundError = require("../utils/errors/NotFoundError");
 const {
   validateUserBody,
   validateLoginBody,
@@ -18,7 +18,7 @@ router.use("/items", validateLoginBody, clothingItemsRouter);
 
 // 404 handler
 router.use((req, res, next) => {
-  return next(new NotFoundError("Requested resource not found"));
+  next(new NotFoundError("Requested resource not found"));
 });
 
 module.exports = router;

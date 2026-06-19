@@ -5,7 +5,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 const mongoose = require("mongoose");
 const { errors } = require("celebrate");
-const rateLimit = require("express-rate-limit");
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/err-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
@@ -32,7 +31,7 @@ app.get("/crash-test", () => {
 app.use(mainRouter);
 
 app.use(errors()); // celebrate error handler
-app.use(errorLogger); //enabling error logger
+app.use(errorLogger); // enabling error logger
 app.use(errorHandler); // centralied error handlers
 
 // Connect to MongoDB
