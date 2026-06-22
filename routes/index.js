@@ -9,12 +9,12 @@ const {
 } = require("../middlewares/validation");
 
 // Public routes
-router.post("/signup", createUser);
-router.post("/signin", login);
+router.post("/signup", validateUserBody, createUser);
+router.post("/signin", validateLoginBody, login);
 
 // Protected routes
-router.use("/users", validateUserBody, userRouter);
-router.use("/items", validateLoginBody, clothingItemsRouter);
+router.use("/users", userRouter);
+router.use("/items", clothingItemsRouter);
 
 // 404 handler
 router.use((req, res, next) => {
